@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -25,11 +26,13 @@ type apiConfig struct {
 var staticFiles embed.FS
 
 func main() {
+	// Load .env
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Printf("warning: assuming default configuration. .env unreadable: %v", err)
 	}
 
+	// Read PORT from env
 	port := os.Getenv("PORT")
 	if port == "" {
 		log.Fatal("PORT environment variable is not set")
@@ -37,12 +40,10 @@ func main() {
 
 	apiCfg := apiConfig{}
 
-	// https://github.com/libsql/libsql-client-go/#open-a-connection-to-sqld
-	// libsql://[your-database].turso.io?authToken=[your-auth-token]
+	// Database optional
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		log.Println("DATABASE_URL environment variable is not set")
-		log.Println("Running without CRUD endpoints")
+		log.Println("DATABASE_URL not set — running without DB endpoints")
 	} else {
 		db, err := sql.Open("libsql", dbURL)
 		if err != nil {
@@ -50,7 +51,7 @@ func main() {
 		}
 		dbQueries := database.New(db)
 		apiCfg.DB = dbQueries
-		log.Println("Connected to database!")
+		log.Println("Connected to database")
 	}
 
 	router := chi.NewRouter()
@@ -64,6 +65,7 @@ func main() {
 		MaxAge:           300,
 	}))
 
+	// Serve static page
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		f, err := staticFiles.Open("static/index.html")
 		if err != nil {
@@ -78,16 +80,21 @@ func main() {
 
 	v1Router := chi.NewRouter()
 
-	if apiCfg.DB != nil {
-		v1Router.Post("/users", apiCfg.handlerUsersCreate)
-		v1Router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerUsersGet))
-		v1Router.Get("/notes", apiCfg.middlewareAuth(apiCfg.handlerNotesGet))
-		v1Router.Post("/notes", apiCfg.middlewareAuth(apiCfg.handlerNotesCreate))
-	}
+	// ❌ Disabled for now (until tasks in later lessons)
+	/*
+		if apiCfg.DB != nil {
+			v1Router.Post("/users", apiCfg.handlerUsersCreate)
+			v1Router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerUsersGet))
+			v1Router.Get("/notes", apiCfg.middlewareAuth(apiCfg.handlerNotesGet))
+			v1Router.Post("/notes", apiCfg.middlewareAuth(apiCfg.handlerNotesCreate))
+		}
+	*/
 
+	// readiness endpoint
 	v1Router.Get("/healthz", handlerReadiness)
 
 	router.Mount("/v1", v1Router)
+
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: router,
@@ -96,3 +103,4 @@ func main() {
 	log.Printf("Serving on port: %s\n", port)
 	log.Fatal(srv.ListenAndServe())
 }
+
