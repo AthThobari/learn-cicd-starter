@@ -22,10 +22,10 @@ jobs:
         run: go test ./... -cover
 #        run: exit(1)
 
-    style:
-      name: Style
-      runs-on: ubuntu-latest
+  style:
+    name: Style
+    runs-on: ubuntu-latest
       
-      steps:
-        - name: Check out code formatting
-          run: test -z $(go fmt ./...)
+    steps:
+      - name: Check out code formatting
+        run: test -z $(go fmt ./...)
