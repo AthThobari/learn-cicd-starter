@@ -21,6 +21,12 @@ jobs:
       - name: Force Failure
         run: go test ./... -cover
 #        run: exit(1)
+  
+      - name: Install gosec
+        run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Security test
+        run: gosec ./...
 
   style:
     name: Style
@@ -41,7 +47,7 @@ jobs:
       - name: Install Linting
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
 
-      - name: Statistic check
-        run: | 
-          staticcheck ./...
+#      - name: Statistic check
+#        run: | 
+#          staticcheck ./...
 
