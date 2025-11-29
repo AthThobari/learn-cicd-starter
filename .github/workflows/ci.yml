@@ -37,3 +37,10 @@ jobs:
 
       - name: Check out code formatting
         run: test -z "$(go fmt ./...)"
+
+      - name: Install Linting
+        run: go install honnef.co/go/tools/cmd/statisticcheck@latest
+
+      - name: Statistic check
+        run: staticcheck ./...
+        run: go version
