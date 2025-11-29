@@ -41,7 +41,7 @@ jobs:
       - name: Install Linting
         run: go install honnef.co/go/tools/cmd/staticcheck@latest
 
-#      - name: Statistic check
-#        run: | 
-#          staticcheck ./...
+      - name: Statistic check
+        run: | 
+          staticcheck ./...
 
