@@ -39,7 +39,7 @@ jobs:
         run: test -z "$(go fmt ./...)"
 
       - name: Install Linting
-        run: go install honnef.co/go/tools/cmd/statisticcheck@latest
+        run: go install honnef.co/go/tools/cmd/staticcheck@latest
 
 #      - name: Statistic check
 #        run: | 
